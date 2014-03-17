@@ -24,22 +24,22 @@ import android.preference.ListPreference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceManager;
 
-public class UsbCurrency extends ListPreference implements
+public class MaliL2MaxReads extends ListPreference implements
 		OnPreferenceChangeListener {
 
-	public UsbCurrency(Context context, AttributeSet attrs) {
+	public MaliL2MaxReads(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.setOnPreferenceChangeListener(this);
 	}
 
-	private static final String FILE = "/sys/kernel/abb-charger/max_usb_c";
+	private static final String FILE = "/sys/module/mali/parameters/mali_l2_max_reads";
 
 	public static boolean isSupported() {
 		return Utils.fileExists(FILE);
 	}
 
 	/**
-	 * Restore currency setting from SharedPreferences. (Write to kernel.)
+	 * Restore deepest sleep state from SharedPreferences.
 	 * 
 	 * @param context
 	 *            The context to read the SharedPreferences from
@@ -52,7 +52,7 @@ public class UsbCurrency extends ListPreference implements
 		SharedPreferences sharedPrefs = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		Utils.writeValue(FILE,
-				sharedPrefs.getString(DeviceSettings.KEY_USB_CURRENCY, "600"));
+				sharedPrefs.getString(DeviceSettings.KEY_MALI_L2MR, "48"));
 	}
 
 	public boolean onPreferenceChange(Preference preference, Object newValue) {

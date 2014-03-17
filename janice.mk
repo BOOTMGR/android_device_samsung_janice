@@ -12,7 +12,7 @@ PRODUCT_AAPT_PREF_CONFIG := hdpi
 
 # Packages
 PRODUCT_PACKAGES += \
-    GalaxyS2Settings
+    GalaxySAdvanceSettings
 
 # RIL
 PRODUCT_COPY_FILES += \

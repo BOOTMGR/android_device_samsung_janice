@@ -30,84 +30,52 @@ import android.util.Log;
 
 public class ScreenFragmentActivity extends PreferenceFragment {
 
-    private static final String TAG = "GalaxySAdvance_Settings_Screen";
+	private static final String TAG = "GalaxySAdvance_Settings_Screen";
 
-    private static final String FILE_TOUCHKEY_BRIGHTNESS = "/sys/class/leds/button-backlight/brightness";    
-    private static final String FILE_FB_DELAY = "/sys/module/fbearlysuspend/parameters/fbdelay";
+	private TouchscreenSensitivity mTouchscreenSensitivity;
 
-    
-    private TouchscreenSensitivity mTouchscreenSensitivity;
-    private TouchkeyTimeout mTouchkeyTimeout;
+	public static final String FILE_SWEEP2WAKE = "/sys/kernel/mxt224e/sweep2wake";
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-        addPreferencesFromResource(R.xml.screen_preferences);
-        PreferenceScreen prefSet = getPreferenceScreen();
+		addPreferencesFromResource(R.xml.screen_preferences);
+		// PreferenceScreen prefSet = getPreferenceScreen();
 
-        mTouchscreenSensitivity = (TouchscreenSensitivity) findPreference(DeviceSettings.KEY_TOUCHSCREEN_SENSITIVITY);
-        mTouchscreenSensitivity.setEnabled(TouchscreenSensitivity.isSupported());
-        
-        mTouchkeyTimeout = (TouchkeyTimeout) findPreference(DeviceSettings.KEY_TOUCHKEY_TIMEOUT);
-        mTouchkeyTimeout.setEnabled(TouchkeyTimeout.isSupported());
+		mTouchscreenSensitivity = (TouchscreenSensitivity) findPreference(DeviceSettings.KEY_TOUCHSCREEN_SENSITIVITY);
+		mTouchscreenSensitivity
+				.setEnabled(TouchscreenSensitivity.isSupported());
 
-        if (((CheckBoxPreference)prefSet.findPreference(DeviceSettings.KEY_TOUCHKEY_LIGHT)).isChecked()) {
-            prefSet.findPreference(DeviceSettings.KEY_TOUCHKEY_TIMEOUT).setEnabled(true);
-        } else {
-            prefSet.findPreference(DeviceSettings.KEY_TOUCHKEY_TIMEOUT).setEnabled(false);
-        }
-        
-        if (((CheckBoxPreference)prefSet.findPreference(DeviceSettings.KEY_FB_EARLYSUSPEND_DELAY)).isChecked()) {
-            prefSet.findPreference(DeviceSettings.KEY_FB_EARLYSUSPEND_DELAY_MS).setEnabled(true);
-        } else {
-            prefSet.findPreference(DeviceSettings.KEY_FB_EARLYSUSPEND_DELAY_MS).setEnabled(false);
-        }
-    }
-    
-    @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+	}
 
-        String key = preference.getKey();
+	@Override
+	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
+			Preference preference) {
 
-        Log.w(TAG, "key: " + key);
+		String boxValue;
+		String key = preference.getKey();
 
-        if (key.equals(DeviceSettings.KEY_TOUCHKEY_LIGHT)) {
-            if (((CheckBoxPreference)preference).isChecked()) {
-                //Utils.writeValue(FILE_TOUCHKEY_DISABLE, "0");
-                Utils.writeValue(FILE_TOUCHKEY_BRIGHTNESS, "1");
-                preferenceScreen.findPreference(DeviceSettings.KEY_TOUCHKEY_TIMEOUT).setEnabled(true);
-            } else {
-                //Utils.writeValue(FILE_TOUCHKEY_DISABLE, "1");
-                Utils.writeValue(FILE_TOUCHKEY_BRIGHTNESS, "0");
-                preferenceScreen.findPreference(DeviceSettings.KEY_TOUCHKEY_TIMEOUT).setEnabled(false);
-            }
-        }
-        
-        if(key.equals(DeviceSettings.KEY_FB_EARLYSUSPEND_DELAY)) {
-        	 if (((CheckBoxPreference)preference).isChecked()) {
-        	        Utils.writeValue(FILE_FB_DELAY, "1");
-                 preferenceScreen.findPreference(DeviceSettings.KEY_FB_EARLYSUSPEND_DELAY_MS).setEnabled(true);
-             } else {
-                 Utils.writeValue(FILE_FB_DELAY, "0");
-                 preferenceScreen.findPreference(DeviceSettings.KEY_FB_EARLYSUSPEND_DELAY_MS).setEnabled(false);
-             }
-        }
+		Log.w(TAG, "key: " + key);
 
-        return true;
-    }
+		if (key.equals(DeviceSettings.KEY_USE_SWEEP2WAKE)) {
+			boxValue = (((CheckBoxPreference) preference).isChecked() ? "on"
+					: "off");
+			Utils.writeValue(FILE_SWEEP2WAKE, boxValue);
 
-    public static boolean isSupported(String FILE) {
-        return Utils.fileExists(FILE);
-    }
+		}
 
-    public static void restore(Context context) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        
-        boolean light = sharedPrefs.getBoolean(DeviceSettings.KEY_TOUCHKEY_LIGHT, true);
-        Utils.writeValue(FILE_TOUCHKEY_BRIGHTNESS, light ? "1" : "0");
-        
-        boolean fbdelay = sharedPrefs.getBoolean(DeviceSettings.KEY_FB_EARLYSUSPEND_DELAY, true);
-        Utils.writeValue(FILE_FB_DELAY, fbdelay ? "1" : "0");
-    }
+		return true;
+	}
+
+	public static void restore(Context context) {
+		SharedPreferences sharedPrefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		sharedPrefs.getBoolean(DeviceSettings.KEY_USE_SWEEP2WAKE, false);
+
+		String value = sharedPrefs.getBoolean(
+				DeviceSettings.KEY_USE_SWEEP2WAKE, false) ? "on" : "off";
+		Utils.writeValue(FILE_SWEEP2WAKE, value);
+
+	}
 }

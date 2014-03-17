@@ -16,64 +16,58 @@
 
 package com.cyanogenmod.settings.device;
 
+import com.cyanogenmod.settings.device.R;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.preference.CheckBoxPreference;
 import android.util.Log;
 
-import com.cyanogenmod.settings.device.R;
+public class AdvancedFragmentActivity extends PreferenceFragment {
 
-public class USBFragmentActivity extends PreferenceFragment {
+	private static final String TAG = "GalaxySAdvance_Settings_Advanced";
 
-	private static final String TAG = "GalaxySAdvance_Settings_Usb";
-	private final String FILE = "/sys/kernel/abb-regu/VOTG";
+	public static final String FILE_SPI_CRC = "/sys/module/mmc_core/parameters/use_spi_crc";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		addPreferencesFromResource(R.xml.usb_preferences);
+		addPreferencesFromResource(R.xml.advanced_preferences);
 
 		PreferenceScreen prefSet = getPreferenceScreen();
-
-		prefSet.findPreference(DeviceSettings.KEY_AC_CURRENCY).setEnabled(
-				ChargerCurrency.isSupported());
-		prefSet.findPreference(DeviceSettings.KEY_USB_CURRENCY).setEnabled(
-				UsbCurrency.isSupported());
-		prefSet.findPreference(DeviceSettings.KEY_USB_OTG_POWER).setEnabled(
-				isSupported(FILE));
-
 	}
 
 	@Override
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
 			Preference preference) {
 
-		// String boxValue;
+		String boxValue;
 		String key = preference.getKey();
 
 		Log.w(TAG, "key: " + key);
 
-		if (key.equals(DeviceSettings.KEY_USB_OTG_POWER)) {
-			if (((CheckBoxPreference) preference).isChecked()) {
-				Utils.writeValue(FILE, "1");
-			} else {
-				Utils.writeValue(FILE, "0");
-			}
+		if (key.equals(DeviceSettings.KEY_USE_SPI_CRC)) {
+			boxValue = (((CheckBoxPreference) preference).isChecked() ? "0"
+					: "1");
+			Utils.writeValue(FILE_SPI_CRC, boxValue);
 		}
 
 		return true;
 	}
 
-	public static boolean isSupported(String FILE) {
-		return Utils.fileExists(FILE);
+	public static void restore(Context context) {
+		SharedPreferences sharedPrefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+
+		String value = sharedPrefs.getBoolean(DeviceSettings.KEY_USE_SPI_CRC,
+				false) ? "0" : "1";
+		Utils.writeValue(FILE_SPI_CRC, value);
 	}
 
-	public static void restore(Context context) {
-		PreferenceManager.getDefaultSharedPreferences(context);
-	}
 }
