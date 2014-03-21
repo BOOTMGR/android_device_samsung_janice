@@ -35,6 +35,8 @@ public class ScreenFragmentActivity extends PreferenceFragment {
 	private TouchscreenSensitivity mTouchscreenSensitivity;
 
 	public static final String FILE_SWEEP2WAKE = "/sys/kernel/mxt224e/sweep2wake";
+	public static final String FILE_FBDELAY = "/sys/module/fbearlysuspend/parameters/fbdelay";
+	public static final String FILE_FBDELAY_MS = "/sys/module/fbearlysuspend/parameters/fbdelay_ms";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -62,7 +64,12 @@ public class ScreenFragmentActivity extends PreferenceFragment {
 			boxValue = (((CheckBoxPreference) preference).isChecked() ? "on"
 					: "off");
 			Utils.writeValue(FILE_SWEEP2WAKE, boxValue);
-
+		} else if (key.equals(DeviceSettings.KEY_FBDELAY)) {
+			Log.d("harsh_debug", "key :" + DeviceSettings.KEY_FBDELAY);
+			boxValue = (((CheckBoxPreference) preference).isChecked() ? "1" : "0");
+			Utils.writeValue(FILE_FBDELAY, boxValue);
+			if (Integer.valueOf(boxValue) == 1)
+				Utils.writeValue(FILE_FBDELAY_MS, "350");
 		}
 
 		return true;
@@ -71,11 +78,14 @@ public class ScreenFragmentActivity extends PreferenceFragment {
 	public static void restore(Context context) {
 		SharedPreferences sharedPrefs = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		sharedPrefs.getBoolean(DeviceSettings.KEY_USE_SWEEP2WAKE, false);
-
+		
 		String value = sharedPrefs.getBoolean(
 				DeviceSettings.KEY_USE_SWEEP2WAKE, false) ? "on" : "off";
 		Utils.writeValue(FILE_SWEEP2WAKE, value);
-
+		value = sharedPrefs.getBoolean(
+				DeviceSettings.KEY_FBDELAY, false) ? "1" : "0";
+		Utils.writeValue(FILE_FBDELAY, value);
+		if (Integer.valueOf(value) == 1)
+			Utils.writeValue(FILE_FBDELAY_MS, "350");
 	}
 }

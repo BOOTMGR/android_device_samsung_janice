@@ -36,6 +36,11 @@
     <string name="use_sweep2wake_title_head">Sweep2Wake</string>
     <string name="use_sweep2wake_summary_head">Unlock device with a swype</string>
 
+    <!-- CATEGORY: CRT Animation -->
+    <string name="misc">MISC</string>
+    <string name="fbdelay_msg">CRT TV off animation</string>
+    <string name="fbdelay_sum">Enables FB delay to enable CRT TV off animation</string>
+
     <!-- TAB: USB -->
     <string name="category_usb_title">Usb</string>
 
